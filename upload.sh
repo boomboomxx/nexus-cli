@@ -1,0 +1,1 @@
+curl -u admin:admin123 --upload-file nexus-cli "https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli"

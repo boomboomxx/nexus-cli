@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"html/template"
-	"os"
-
-	"github.com/mlabouardy/nexus-cli/registry"
 	"github.com/urfave/cli"
+	"html/template"
+	"nexus-cli/registry"
+	"os"
 )
 
 const (
@@ -21,11 +20,15 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "Nexus CLI"
 	app.Usage = "Manage Docker Private Registry on Nexus"
-	app.Version = "1.0.0-beta"
+	app.Version = "1.0.1-beta"
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name:  "Mohamed Labouardy",
 			Email: "mohamed@labouardy.com",
+		},
+		cli.Author{
+			Name:  "徐祥",
+			Email: "xuxiang@jx-sz.net",
 		},
 	}
 	app.Commands = []cli.Command{
@@ -91,6 +94,37 @@ func main() {
 					},
 					Action: func(c *cli.Context) error {
 						return deleteImage(c)
+					},
+				},
+				{
+					Name:  "szis",
+					Usage: "Manage Docker Images",
+					Subcommands: []cli.Command{
+						{
+							Name: "delete",
+							Usage: `
+					Delete with szis rule
+					1.202411.1.2-prod-123
+					1.202411.1.2-prod
+					1.202411.1.2
+					The above three types of tags are considered as matchable tags,
+					and their corresponding versions will be deleted.
+						`,
+							Flags: []cli.Flag{
+								cli.StringFlag{
+									Name:  "name, n",
+									Usage: "Specify image name",
+								},
+								cli.StringFlag{
+									Name:  "keep, k",
+									Value: "1",
+									Usage: "Specify keep num, minimum 1",
+								},
+							},
+							Action: func(c *cli.Context) error {
+								return deleteImageWithSzisRule(c)
+							},
+						},
 					},
 				},
 				{
@@ -258,6 +292,38 @@ func deleteImage(c *cli.Context) error {
 			if err != nil {
 				return cli.NewExitError(err.Error(), 1)
 			}
+		}
+	}
+	return nil
+}
+
+func deleteImageWithSzisRule(c *cli.Context) error {
+	var imgName = c.String("name")
+	var keep = c.Int("keep")
+	if keep <= 0 {
+		keep = 1
+		fmt.Fprintf(c.App.Writer, "keep number is le 0, init to 1\n")
+	}
+	if imgName == "" {
+		fmt.Fprintf(c.App.Writer, "You should specify the image name\n")
+		cli.ShowSubcommandHelp(c)
+	} else {
+		r, err := registry.NewRegistry()
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		tags, err := r.ListTagsByImage(imgName)
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		toBeDeleteTags := extractToDelete(tags, keep)
+		if len(toBeDeleteTags) > 0 {
+			for _, tag := range toBeDeleteTags {
+				fmt.Printf("%s:%s image will be deleted ...\n", imgName, tag)
+				r.DeleteImageByTag(imgName, tag)
+			}
+		} else {
+			fmt.Printf("The current image [%s] does not have any tags to remove \n", imgName)
 		}
 	}
 	return nil

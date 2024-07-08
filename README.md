@@ -12,6 +12,17 @@ Nexus CLI for Docker Registry
 <img src="example.png"/>
 </div>
 
+## Build
+```shell
+# init project
+go mod init nexus-cli
+# fetch dependency
+go mod tidy
+# build cli
+go build -o nexus-cli .
+```
+
+
 ## Download
 
 Below are the available downloads for the latest version of Nexus CLI (1.0.0-beta). Please download the proper package for your operating system and architecture.
@@ -19,39 +30,31 @@ Below are the available downloads for the latest version of Nexus CLI (1.0.0-bet
 ### Linux:
 
 ```
-wget https://s3.eu-west-2.amazonaws.com/nexus-cli/1.0.0-beta/linux/nexus-cli
+wget https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli
 ```
 
 ### Windows:
 
 ```
-wget https://s3.eu-west-2.amazonaws.com/nexus-cli/1.0.0-beta/windows/nexus-cli
+wget https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli
 ```
 
 ### Mac OS X:
 
 ```
-wget https://s3.eu-west-2.amazonaws.com/nexus-cli/1.0.0-beta/osx/nexus-cli
+wget https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli
 ```
 
 ### OpenBSD:
 
 ```
-wget https://s3.eu-west-2.amazonaws.com/nexus-cli/1.0.0-beta/openbsd/nexus-cli
+wget https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli
 ```
 
 ### FreeBSD:
 
 ```
-wget https://s3.eu-west-2.amazonaws.com/nexus-cli/1.0.0-beta/freebsd/nexus-cli
-```
-
-## Installation
-
-To install the library and command line program, use the following:
-
-```
-go get -u github.com/mlabouardy/nexus-cli
+wget https://nexus.szistech.com/repository/raw-szis-releases/sziscloud/nexus-cli/1.0.1/nexus-cli
 ```
 
 ## Available Commands
@@ -78,6 +81,11 @@ $ nexus-cli image delete -name mlabouardy/nginx -tag 1.2.0
 
 ```
 $ nexus-cli image delete -name mlabouardy/nginx -keep 4
+```
+
+```
+# delete image tags with szis rules
+$ nexus-cli image szis delete -name mlabouardy/nginx -k 2
 ```
 
 ```
