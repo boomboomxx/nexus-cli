@@ -22,11 +22,11 @@ func main() {
 	app.Usage = "Manage Docker Private Registry on Nexus"
 	app.Version = "1.0.1-beta"
 	app.Authors = []cli.Author{
-		cli.Author{
+		{
 			Name:  "Mohamed Labouardy",
 			Email: "mohamed@labouardy.com",
 		},
-		cli.Author{
+		{
 			Name:  "徐祥",
 			Email: "xuxiang@jx-sz.net",
 		},
@@ -116,6 +116,10 @@ func main() {
 									Usage: "Specify image name",
 								},
 								cli.StringFlag{
+									Name:  "tag, t",
+									Usage: "Specify tag name",
+								},
+								cli.StringFlag{
 									Name:  "keep, k",
 									Value: "1",
 									Usage: "Specify keep num, minimum 1",
@@ -143,21 +147,21 @@ func main() {
 		},
 	}
 	app.CommandNotFound = func(c *cli.Context, command string) {
-		fmt.Fprintf(c.App.Writer, "Wrong command %q !", command)
+		_, _ = fmt.Fprintf(c.App.Writer, "Wrong command %q !", command)
 	}
-	app.Run(os.Args)
+	_ = app.Run(os.Args)
 }
 
 func setNexusCredentials(c *cli.Context) error {
 	var hostname, repository, username, password string
 	fmt.Print("Enter Nexus Host: ")
-	fmt.Scan(&hostname)
+	_, _ = fmt.Scan(&hostname)
 	fmt.Print("Enter Nexus Repository Name: ")
-	fmt.Scan(&repository)
+	_, _ = fmt.Scan(&repository)
 	fmt.Print("Enter Nexus Username: ")
-	fmt.Scan(&username)
+	_, _ = fmt.Scan(&username)
 	fmt.Print("Enter Nexus Password: ")
-	fmt.Scan(&password)
+	_, _ = fmt.Scan(&password)
 
 	data := struct {
 		Host       string
@@ -299,6 +303,7 @@ func deleteImage(c *cli.Context) error {
 
 func deleteImageWithSzisRule(c *cli.Context) error {
 	var imgName = c.String("name")
+	var tag = c.String("tag")
 	var keep = c.Int("keep")
 	if keep <= 0 {
 		keep = 1
@@ -308,9 +313,18 @@ func deleteImageWithSzisRule(c *cli.Context) error {
 		fmt.Fprintf(c.App.Writer, "You should specify the image name\n")
 		cli.ShowSubcommandHelp(c)
 	} else {
+
 		r, err := registry.NewRegistry()
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
+		}
+
+		if tag != "" {
+			err = r.DeleteImageByTag(imgName, tag)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+			return nil
 		}
 		tags, err := r.ListTagsByImage(imgName)
 		if err != nil {

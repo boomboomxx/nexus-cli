@@ -27,7 +27,7 @@ type strSorter struct {
 	cmp  func(str1, str2 string) bool
 }
 
-func extractNumberFromString(str string) (num int) {
+func extractNumberFromString(str string) (num int64) {
 	strSlice := make([]string, 0)
 	for _, v := range str {
 		if unicode.IsDigit(v) {
@@ -41,7 +41,7 @@ func extractNumberFromString(str string) (num int) {
 		return 1 << 32
 	}
 
-	num, err := strconv.Atoi(strings.Join(strSlice, ""))
+	num, err := strconv.ParseInt(strings.Join(strSlice, ""), 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func checkPattern(tag string) bool {
 	return regex.MatchString(tag)
 }
 
-func extractNumberFromStringForSzis(str string) (num int) {
+func extractNumberFromStringForSzis(str string) (num int64) {
 	strSlice := make([]string, 0)
 
 	for _, v := range str {
@@ -118,7 +118,7 @@ func extractNumberFromStringForSzis(str string) (num int) {
 		return 1 << 32
 	}
 
-	num, err := strconv.Atoi(strings.Join(strSlice, ""))
+	num, err := strconv.ParseInt(strings.Join(strSlice, ""), 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func extractNumberFromStringForSzis(str string) (num int) {
 }
 
 // 获取后缀分数
-func getSuffixNumber(tag string) int {
+func getSuffixNumber(tag string) int64 {
 	parts := strings.Split(tag, ".")
 	return extractNumberFromStringForSzis(parts[3])
 }
