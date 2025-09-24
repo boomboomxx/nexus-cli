@@ -27,8 +27,8 @@ func main() {
 			Email: "mohamed@labouardy.com",
 		},
 		{
-			Name:  "徐祥",
-			Email: "xuxiang@jx-sz.net",
+			Name:  "xx",
+			Email: "twobxx@gmail.com",
 		},
 	}
 	app.Commands = []cli.Command{
@@ -46,6 +46,12 @@ func main() {
 				{
 					Name:  "ls",
 					Usage: "List all images in repository",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "name, n",
+							Usage: "List image by name",
+						},
+					},
 					Action: func(c *cli.Context) error {
 						return listImages(c)
 					},
@@ -193,18 +199,27 @@ func setNexusCredentials(c *cli.Context) error {
 }
 
 func listImages(c *cli.Context) error {
+	var imgName = c.String("name")
 	r, err := registry.NewRegistry()
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
 	}
 	images, err := r.ListImages()
+	imgLen := 0
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
 	}
 	for _, image := range images {
-		fmt.Println(image)
+		if imgName != "" && image == imgName {
+			fmt.Printf(image)
+			imgLen = 1
+			break
+		} else {
+			fmt.Println(image)
+			imgLen = imgLen + 1
+		}
 	}
-	fmt.Printf("Total images: %d\n", len(images))
+	fmt.Printf("Total images: %d\n", imgLen)
 	return nil
 }
 

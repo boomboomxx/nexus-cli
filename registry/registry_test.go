@@ -3,6 +3,7 @@ package registry
 import (
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -43,12 +44,13 @@ func Test_image_prod_del(t *testing.T) {
 
 	var cnt = 0
 	for _, imgName := range prod_images {
+		log.Printf("start deal image: %s ", imgName)
 		tags, err := r.ListTagsByImage(imgName)
 		if err != nil {
 			log.Fatal("无tag")
 			return
 		}
-		toBeDeleteTags := extractToDelete(tags, 1)
+		toBeDeleteTags := extractToDelete(imgName, tags, 1)
 		if len(toBeDeleteTags) > 0 {
 			for _, tag := range toBeDeleteTags {
 				cnt++
@@ -62,7 +64,7 @@ func Test_image_prod_del(t *testing.T) {
 }
 
 // 提取需要删除的镜像版本
-func extractToDelete(tags []string, keep int) []string {
+func extractToDelete(imgName string, tags []string, keep int) []string {
 	var toDelete []string
 
 	if len(tags) < 1 {
@@ -70,11 +72,12 @@ func extractToDelete(tags []string, keep int) []string {
 	}
 	// 定义 map 用于存储分组后的字符串
 	groupMap := make(map[string][]string)
-
+	var err_tags []string
 	// 分组
 	for _, tag := range tags {
 		if !checkPattern(tag) {
-			fmt.Printf("tag: [%s] dose not matching szis rules, skip \n", tag)
+			err_tags = append(err_tags, fmt.Sprintf("nexus-cli image delete -n %s -t %s", imgName, tag))
+			log.Printf("tag: [%s] dose not matching szis rules, skip \n you can use command: 'nexus-cli image delete -n %s -t %s' to delete it", tag, imgName, tag)
 			continue
 		}
 		prefix := getPrefix(tag)
@@ -92,6 +95,21 @@ func extractToDelete(tags []string, keep int) []string {
 		// 剔除最大的那个，即删除第一个元素
 		if len(group) > keep {
 			toDelete = append(toDelete, group[:len(group)-keep]...)
+		}
+	}
+	if len(err_tags) > 0 {
+		file, err := os.OpenFile("../error_tags.sh", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Printf("打开文件失败: %v", err)
+			log.Println("请手动删除以下错误标签")
+			log.Println(err_tags)
+		}
+		defer file.Close()
+		for _, tag := range err_tags {
+			_, err := file.WriteString(tag + "\n")
+			if err != nil {
+				log.Printf("写入文件失败: %v", err)
+			}
 		}
 	}
 	return toDelete

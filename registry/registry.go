@@ -13,10 +13,10 @@ const ACCEPT_HEADER = "application/vnd.docker.distribution.manifest.v2+json"
 const CREDENTIALS_FILE = ".credentials"
 
 type Registry struct {
-	Host       string `toml:"nexus_host"`
-	Username   string `toml:"nexus_username"`
-	Password   string `toml:"nexus_password"`
-	Repository string `toml:"nexus_repository"`
+	Host       string `toml:"nexus_host" env:"NEXUS_CLI_HOST"`
+	Username   string `toml:"nexus_username" env:"NEXUS_CLI_USERNAME"`
+	Password   string `toml:"nexus_password" env:"NEXUS_CLI_PASSWORD"`
+	Repository string `toml:"nexus_repository" env:"NEXUS_CLI_REPOSITORY"`
 }
 
 type Repositories struct {
