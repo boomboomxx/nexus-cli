@@ -20,14 +20,14 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "Nexus CLI"
 	app.Usage = "Manage Docker Private Registry on Nexus"
-	app.Version = "1.0.1-beta"
+	app.Version = "1.0.1"
 	app.Authors = []cli.Author{
 		{
 			Name:  "Mohamed Labouardy",
 			Email: "mohamed@labouardy.com",
 		},
 		{
-			Name:  "xx",
+			Name:  "bomb xx",
 			Email: "twobxx@gmail.com",
 		},
 	}

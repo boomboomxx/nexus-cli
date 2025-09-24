@@ -29,6 +29,7 @@ func Test_image_prod_del(t *testing.T) {
 	if err != nil {
 		log.Print(err)
 	}
+	prefixFilter := "prod"
 	images, err := r.ListImages()
 	if err != nil {
 		log.Print(err)
@@ -37,7 +38,7 @@ func Test_image_prod_del(t *testing.T) {
 	var prod_images []string
 
 	for _, image := range images {
-		if strings.HasPrefix(image, "prod") {
+		if strings.HasPrefix(image, prefixFilter) {
 			prod_images = append(prod_images, image)
 		}
 	}
